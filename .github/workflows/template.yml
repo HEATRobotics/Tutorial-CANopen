@@ -18,6 +18,10 @@ jobs:
           docker compose up -d
           docker compose exec -T tutorial rosenv ros2 pkg prefix rosidl_default_generators
           docker compose exec -T tutorial rosenv bash scripts/check_template.sh
+      - name: Completed-node tests and pipeline simulation
+        run: |
+          docker compose exec -T tutorial rosenv python3 -m pytest -q /opt/tutorial_ws/src/helper/test /opt/tutorial_ws/src/comms/test
+          docker compose exec -T tutorial rosenv python3 scripts/smoke_pipeline.py
       - name: Cleanup
         if: always()
         run: docker compose down

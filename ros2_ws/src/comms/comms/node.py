@@ -4,7 +4,6 @@ CANopen protocol, mixing, watchdog, arm/stop and cleanup are already supplied.
 """
 import rclpy
 from interfaces.msg import DriveCommand
-from .blanks import TODO
 from .mixing import mix
 from .support.runtime import CommsRuntime
 
@@ -13,7 +12,7 @@ class Comms(CommsRuntime):
     def connect_input(self):
         # C01: the helper output topic name, as a string.
         return self.create_subscription(
-            DriveCommand, TODO('C01'), self.on_command, 1)
+            DriveCommand, '/drive/normalized', self.on_command, 1)
 
     def mix_inputs(self, forward, turn):
         # Provided: bound the differential wheel mix in FL, BL, FR, BR order.
@@ -21,11 +20,11 @@ class Comms(CommsRuntime):
 
     def target_rpm(self, level, direction):
         # C02: multiply level * self.speed * direction.
-        return TODO('C02')
+        return level * self.speed * direction
 
     def send_target(self, control, rpm):
         # C03: return control.command(rpm), which performs the CANopen transfer.
-        return TODO('C03')
+        return control.command(rpm)
 
 
 def main(args=None):

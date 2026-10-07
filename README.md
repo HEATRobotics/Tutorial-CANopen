@@ -1,3 +1,21 @@
+# Completed setup — test branch
+
+This branch (`test/complete-setup`) has all nine node blanks filled. The original exercise remains on `main`; the lessons below explain the code.
+
+Quick simulation test from the repository root:
+
+```bash
+docker compose up -d --build
+docker compose exec tutorial rosenv python3 -m pytest -q /opt/tutorial_ws/src/helper/test /opt/tutorial_ws/src/comms/test
+docker compose exec tutorial rosenv python3 scripts/smoke_pipeline.py
+```
+
+Stop existing tutorial nodes before the smoke test. Expected: 19 tests pass, followed by the pipeline PASS message. The test starts simulation only and cleans up its nodes.
+
+For real motors, use the [native Pi setup](docs/07-hardware.md), build/source this completed branch, and run the three nodes there. Keep your existing `can0` at 1 Mbit/s. Motor speed limits and selected drive IDs must match your bench.
+
+---
+
 # ROS 2 + Maxon: a one-hour node exercise
 
 Four packages are **already created** and included in the Humble container. Fill **nine blanks in three node files** to connect this pipeline:

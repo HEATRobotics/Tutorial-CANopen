@@ -3,7 +3,6 @@ import math
 import rclpy
 from rclpy.node import Node
 from interfaces.msg import DriveCommand
-from .blanks import TODO
 
 
 class Helper(Node):
@@ -19,11 +18,11 @@ class Helper(Node):
             output.forward = output.turn = 0.0
         else:
             # H01: clamp msg.forward with max(-1.0, min(1.0, VALUE)).
-            output.forward = TODO('H01')
+            output.forward = max(-1.0, min(1.0, msg.forward))
             # H02: clamp msg.turn using the same pattern.
-            output.turn = TODO('H02')
+            output.turn = max(-1.0, min(1.0, msg.turn))
         # H03: publish output with self.publisher. No timer/repeated stale messages.
-        TODO('H03')
+        self.publisher.publish(output)
 
 
 def main(args=None):

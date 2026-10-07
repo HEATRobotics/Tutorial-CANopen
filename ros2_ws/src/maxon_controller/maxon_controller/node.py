@@ -2,7 +2,6 @@
 import rclpy
 from rclpy.node import Node
 from interfaces.msg import DriveCommand
-from .blanks import TODO
 
 
 class MaxonController(Node):
@@ -16,11 +15,11 @@ class MaxonController(Node):
     def publish_command(self):
         msg = DriveCommand()
         # M01: read self.get_parameter('forward').value as a float.
-        msg.forward = TODO('M01')
+        msg.forward = float(self.get_parameter('forward').value)
         # M02: do the same for the 'turn' parameter.
-        msg.turn = TODO('M02')
+        msg.turn = float(self.get_parameter('turn').value)
         # M03: publish msg with self.publisher.
-        TODO('M03')
+        self.publisher.publish(msg)
 
 
 def main(args=None):

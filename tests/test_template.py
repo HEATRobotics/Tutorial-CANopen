@@ -1,4 +1,4 @@
-"""Maintainer checks validate the scaffold; they do not solve learner blanks."""
+"""Checks for the completed test branch."""
 import ast
 from pathlib import Path
 import re
@@ -18,18 +18,13 @@ def test_exactly_four_package_manifests():
         'interfaces', 'maxon_controller', 'helper', 'comms'}
 
 
-def test_numbered_blanks_and_lesson_references():
-    blanks = set()
+def test_completed_nodes_have_no_blanks():
     for path in (ROOT / 'ros2_ws/src').rglob('*.py'):
-        blanks.update(re.findall(r"TODO\('([MHC]\d+)['\)]", path.read_text()))
-    expected = {f'M{i:02}' for i in range(1, 4)} | {f'H{i:02}' for i in range(1, 4)} | {
-        f'C{i:02}' for i in range(1, 4)}
-    assert blanks == expected
-    docs = '\n'.join(p.read_text() for p in (ROOT / 'docs').glob('*.md'))
-    assert all(blank in docs for blank in expected)
+        assert not re.search(r"TODO\('[MHC]\d+", path.read_text()), str(path)
 
 
-def test_blanks_only_live_in_three_node_files():
-    paths = [p for p in (ROOT / 'ros2_ws/src').rglob('*.py')
-             if re.search(r"TODO\('[MHC]\d+", p.read_text())]
-    assert len(paths) == 3 and all(p.name == 'node.py' for p in paths)
+def test_three_completed_node_files():
+    for package in ('maxon_controller', 'helper', 'comms'):
+        path = ROOT / 'ros2_ws/src' / package / package / 'node.py'
+        assert path.is_file()
+        assert 'def main(' in path.read_text()
