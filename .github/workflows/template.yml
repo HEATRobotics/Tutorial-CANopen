@@ -1,0 +1,23 @@
+name: Tutorial template checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  template-checks:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pytest
+          bash scripts/check_template.sh
+      - name: Build development environment
+        run: docker compose build
+      - name: Check ROS environment and supplied support tests
+        run: |
+          docker compose up -d
+          docker compose exec -T tutorial rosenv ros2 pkg prefix rosidl_default_generators
+          docker compose exec -T tutorial rosenv bash scripts/check_template.sh
+      - name: Cleanup
+        if: always()
+        run: docker compose down

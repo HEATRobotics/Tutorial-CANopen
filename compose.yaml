@@ -1,0 +1,17 @@
+# Shared Linux container for Windows (WSL 2), macOS, and Linux learners.
+services:
+  tutorial:
+    image: tutorial-canopen:humble
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    init: true
+    stdin_open: true
+    tty: true
+    environment:
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
+      ROS_LOCALHOST_ONLY: "1"
+    volumes:
+      - .:/work/tutorial
+    working_dir: /work/tutorial
+    stop_grace_period: 10s
