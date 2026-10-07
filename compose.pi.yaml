@@ -1,7 +1,0 @@
-# Linux Docker Engine only; bring up SocketCAN on the Pi host first.
-# Usage: docker compose -f compose.yaml -f compose.pi.yaml up -d
-services:
-  tutorial:
-    network_mode: host
-    cap_drop: [ALL]
-    cap_add: [NET_RAW]

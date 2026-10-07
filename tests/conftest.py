@@ -1,4 +1,4 @@
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'exercises/comms'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'ros2_ws/src/comms'))

@@ -1,20 +1,9 @@
-# Validation boundaries
+# Validation
 
-This repository intentionally ships unfinished exercises. Maintainer checks validate Python syntax, package names, blank/lesson coverage, relative links, and the supplied drive safety support. Learner tests require completed code and intentionally fail on unfilled TODO calls. Interface generation intentionally fails until I01/I02 are completed.
+The container builds and installs all four premade packages with node blanks intact. Building does not execute node callbacks. Maintainer checks validate package layout, Python syntax, nine blank IDs and matching lesson references, relative links, and the supplied safety controller.
 
-The Docker image builds the Humble development environment without building the unfinished exercises. The full pipeline smoke test launches completed learner nodes in simulation and checks the custom message, helper normalization, rpm mixing, stopping, and upstream-loss watchdog. The virtual SDO test checks transport encoding/sequencing without hardware.
+Learner tests call the actual helper callback and comms node hooks; they intentionally fail until those blanks are filled. The simulation smoke test launches all three completed nodes and verifies the entire message/normalization/rpm/stop/watchdog flow. Virtual-CAN tests validate the supplied transport without hardware.
 
-Windows/macOS Docker Desktop execution, arm64 Pi execution, physical adapters, ESCON2 commissioning, and real motor stopping require platform/bench validation. No physical hardware validation is claimed. GitHub workflow execution requires pushing these files; no workflow run or lesson checkpoint tags have been published by this change.
+The one-hour plan assumes a ready development environment. Image downloads and physical hardware commissioning are separate. Native Pi hardware operation, Windows/macOS execution and arm64 execution need validation on those platforms; simulated success does not establish real motor stopping. No hardware validation is claimed.
 
-## Results from this rewrite
-
-Verified on Linux amd64 in this workspace, 2026-10-06:
-
-- 24 maintainer checks passed, including the supplied controller regressions.
-- Relative documentation links, Python syntax, shell syntax, and whitespace checks passed.
-- The redesigned Humble development image built successfully.
-- In a temporary workspace outside the repository, the documented `ros2 pkg create` commands created all four packages. A completed copy of the starter overlays generated the custom interface and built all packages with colcon.
-- All 16 learner tests passed in that temporary completed workspace, including live virtual-CAN SDO request/response testing of the student transport.
-- The complete ROS simulation smoke test passed: raw custom message, helper clamping, four-motor rpm mapping, normal stop, and latched upstream-loss watchdog.
-
-The temporary completed copy was used only for validation; the repository still ships numbered blanks and an empty learner workspace. This does not establish Windows/macOS/arm64 or physical bench validation.
+Verified for the simplified exercise on Linux amd64: the Docker image built and installed all four packages with blanks intact; all 24 maintainer checks passed. A temporary completed copy outside the repository passed all 19 package tests and the full ROS simulation smoke test. The repository's nine blanks remain unfilled. Shell syntax, relative links and whitespace checks also passed.

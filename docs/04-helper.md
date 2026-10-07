@@ -1,46 +1,26 @@
-# Lesson 04: Normalize and republish
+# Clamp and republish — 15 minutes
 
-Edit `ros2_ws/src/helper/helper/normalization.py` and `node.py`.
+Edit `ros2_ws/src/helper/helper/node.py`. The subscriber, publisher, output message, and NaN/infinity checks are already supplied.
 
-| Blank | Task |
+| Blank | Fill with |
 | --- | --- |
-| H01 | Check BOTH values with `math.isfinite` |
-| H02 | Clamp forward into [-1.0, 1.0] |
-| H03 | Clamp turn into [-1.0, 1.0] |
-| H04 | Create a `DriveCommand` publisher on `/drive/normalized`, depth 1 |
-| H05 | Subscribe to `/drive/raw` with `self.on_command`, depth 1 |
-| H06 | Pass both received fields to `normalize` |
-| H07 | Publish the new output message |
+| H01 | `max(-1.0, min(1.0, msg.forward))` |
+| H02 | The same clamp for `msg.turn` |
+| H03 | Publish `output` using `self.publisher` |
 
-Here “normalize” means independently clamp each axis, preserving valid values. `2.0, -3.0` becomes `1.0, -1.0`. If either input is NaN or infinite, both outputs become zero. Do not divide a valid pair by its length: the wheel mix is a separate task.
+“Normalized” here means each finite axis is clamped to [-1, 1]. Preserve values already in range. If either input is nonfinite, the supplied guard outputs zeros. Republish only in the callback: a timer repeating the last input would hide upstream failure.
 
-Republish **only when a new raw message arrives**. A timer that repeats the last command would hide upstream failure from the comms watchdog.
-
-Build and run the pure-function tests:
+Check your callback:
 
 ```bash
 cd /work/tutorial/ros2_ws
-colcon build --symlink-install --base-paths src --packages-up-to helper
-source install/setup.bash
 python3 -m pytest -q src/helper/test/test_normalization.py
 ```
 
-Expected: six tests pass after completing H01–H03. TODO failures tell you which expression remains. Start helper in terminal A and the previous lesson's raw publisher in terminal B:
+Expected: six tests pass. These tests call your actual node callback. On the native Pi, replace `/work/tutorial` with your checkout path.
 
-```bash
-ros2 run helper node
-```
+Run `ros2 run helper node` alongside maxon_controller and echo `/drive/normalized`. With raw forward=2.0 and turn=-0.25, expect 1.0 and -0.25. Stopping maxon_controller must stop the normalized stream too.
 
-Terminal C:
-
-```bash
-ros2 topic echo /drive/normalized
-```
-
-With raw inputs `forward:=2.0` and `turn:=-0.25`, expect 1.0 and -0.25. Stop maxon_controller; helper should stop publishing rather than keeping the last value alive. Stop the remaining nodes before moving on.
-
-Completion: tests pass, topics are distinct, and no normalized messages are emitted when the raw stream stops.
-
-References: [Python subscribers](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html), [math.isfinite](https://docs.python.org/3.10/library/math.html#math.isfinite), [min/max](https://docs.python.org/3.10/library/functions.html#max).
+References: [Python subscriber callbacks](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html), [min/max](https://docs.python.org/3.10/library/functions.html#max).
 
 [Next: comms](05-comms.md).

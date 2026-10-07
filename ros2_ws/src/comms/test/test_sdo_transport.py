@@ -1,4 +1,4 @@
-"""Exercise C05 over real canopen-python SDOs on a virtual CAN bus."""
+"""Verify the supplied transport over real canopen-python SDOs on a virtual CAN bus."""
 from uuid import uuid4
 import canopen
 from canopen import objectdictionary as od

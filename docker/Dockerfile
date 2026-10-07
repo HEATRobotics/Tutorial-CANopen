@@ -8,10 +8,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --no-cache-dir -r /tmp/requirements.txt
+COPY ros2_ws/src/ /opt/tutorial_ws/src/
+RUN source /opt/ros/humble/setup.bash && cd /opt/tutorial_ws \
+    && colcon build --symlink-install --base-paths src
 COPY docker/entrypoint.sh /usr/local/bin/rosenv
 RUN chmod +x /usr/local/bin/rosenv \
-    && printf '\nsource /opt/ros/humble/setup.bash\nif [ -f /work/tutorial/ros2_ws/install/setup.bash ]; then source /work/tutorial/ros2_ws/install/setup.bash; fi\n' >> /etc/bash.bashrc
+    && printf '\nsource /opt/ros/humble/setup.bash\nsource /opt/tutorial_ws/install/setup.bash\nif [ -f /work/tutorial/ros2_ws/install/setup.bash ]; then source /work/tutorial/ros2_ws/install/setup.bash; fi\n' >> /etc/bash.bashrc
 WORKDIR /work/tutorial
 ENTRYPOINT ["/usr/local/bin/rosenv"]
-# Keep the development environment running. Learners create/build the packages.
+# Packages are installed; node exercises intentionally remain incomplete.
 CMD ["sleep", "infinity"]

@@ -6,10 +6,10 @@ Finish all blanks first. In a container shell, build all four packages and run t
 cd /work/tutorial/ros2_ws
 colcon build --symlink-install --base-paths src
 source install/setup.bash
-python3 -m pytest -q src/helper/test/test_normalization.py src/comms/test/test_commands.py src/comms/test/test_sdo_transport.py
+python3 -m pytest -q src/helper/test/test_normalization.py src/comms/test/test_commands.py src/comms/test/test_sdo_transport.py src/comms/test/test_node_blanks.py
 ```
 
-Expected: **16 learner tests** pass. The virtual SDO test checks C04/C05 with an emulated CANopen device, without physical CAN or motor power. It does not validate a real controller. If testing fails, use the named blank/expected result rather than removing the assertion.
+Expected: **19 tests** pass. The virtual SDO test checks the supplied CAN transport with an emulated CANopen device, without physical CAN or motor power. It does not validate a real controller. If testing fails, use the named blank/expected result rather than removing the assertion.
 
 ## Run nodes manually
 
@@ -63,6 +63,6 @@ python3 scripts/smoke_pipeline.py
 
 Expected: `PASS: custom message, clamp, four-motor rpm mix, stop, upstream-loss watchdog`. This exercises all three completed Python nodes and generated message bindings. It forces simulation and checks for existing tutorial nodes. Do not run alongside hardware control.
 
-If messages are missing, check topic spelling, generated message type, and sourced workspace. If zero rpm persists after arming, check C07 and `/drive/normalized`. If the watchdog never fires after maxon_controller stops, check that helper only publishes in its callback.
+If messages are missing, check topic spelling, generated message type, and sourced workspace. If zero rpm persists after arming, check C02/C03 and `/drive/normalized`. If the watchdog never fires after maxon_controller stops, check that helper only publishes in its callback.
 
-Completion: all 16 learner tests and the full simulation check pass. [Next: hardware](07-hardware.md).
+Completion: all 19 tests and the full simulation check pass. [Next: hardware](07-hardware.md).

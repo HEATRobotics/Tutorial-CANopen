@@ -1,9 +1,7 @@
 # Contributing
 
-Keep the repository a learner exercise. `exercises/` contains starter overlays with numbered blanks; `ros2_ws/src/` starts empty so learners create their own four packages. Do not commit completed learner packages or an answer key to main.
+Keep this a one-hour exercise with four premade packages in `ros2_ws/src`. Only three `node.py` files contain learner blanks: M01–M03, H01–H03, C01–C03. Do not commit completed answers to those files on main. Interface generation, metadata, CAN transport and safety runtime are supplied.
 
-Use descriptive branches such as `docs/explain-normalization`, `fix/sdo-stop`, or `learn/lesson-03`. Open a PR against main. Main requires one approving review and resolved conversations; approvals are dismissed on new commits, force pushes/deletion are blocked, and administrators have no bypass.
+Run `bash scripts/check_template.sh` for scaffold and supplied-support checks. Build the Docker image to verify all packages install with the blanks intact. Validate learner code in a temporary completed copy with the 19 package tests and `scripts/smoke_pipeline.py`. These completed-node tests intentionally fail against unfilled blanks.
 
-Run `bash scripts/check_template.sh` for scaffold/supplied-support checks. Build the Docker image after dependency changes. Learner tests intentionally fail until the corresponding blanks are completed; run them in a separate completed workspace when validating lesson changes. Keep hardware validation separate from simulation results.
-
-Each blank needs a matching lesson entry, reference link, expected behavior, and a completion check. Treat the supplied drive-state, watchdog, fault-latching, and shutdown code as reviewed support. Any change there needs regression tests and a hardware impact review before bench use. Do not publish untested wiring or claim hardware validation from simulation tests.
+Keep native Pi deployment matching Autobot; desktop containers are for development/simulation. Document hardware validation separately. Use a descriptive branch and PR against main; existing review and branch protections apply.

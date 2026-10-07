@@ -16,31 +16,44 @@ Secure and guard the unloaded motor; provide independent means to stop/remove mo
 
 The supplied code does not commission ramps/current, save to flash, reset faults automatically, or configure/generate a CANopen heartbeat. Do not assume a heartbeat consumer can supervise this node without implementing a producer. Have a qualified integrator establish and demonstrate an independent communication-loss response supported by the drive/system before bench motion. Blocking SDO transfers can extend the ROS timeout response; it is not hard real time.
 
-## Prepare the Pi host
+## Native Pi workflow, like Autobot
 
-Use a 64-bit OS supported by your Pi model, Docker Engine/Compose v2, and a SocketCAN-compatible adapter with its host driver installed. The Pi GPIO header alone is not a CAN transceiver. Clone your completed learner branch on the Pi; do not copy desktop build/install directories. Power off for wiring. Follow the drive/adapter manuals for CAN_H, CAN_L, reference ground, and termination at both ends.
+Your existing setup is Ubuntu 22.04.5, an MCP2515 SPI adapter on `can0`, and `CAN_BIT_RATE=1000000`. Keep the working boot overlay (`oscillator=12000000`, `interrupt=25`, `spimaxfrequency=2000000`) and driver. The Pi runs ROS 2 Humble directly; it does not need Docker.
 
-On the Pi host:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y can-utils iproute2
-ip -brief link
-bash scripts/setup_can.sh can0 1000000
-candump -e can0
-```
-
-This example assumes commissioned 1 Mbit/s and `can0`; use your actual settings. If errors/BUS-OFF occur, correct wiring/bitrate/termination before manually restarting. Ctrl+C exits candump.
-
-Start the Linux hardware networking overlay:
+Clone your completed learner branch on the Pi. Transfer source only; build/install directories must be built on the Pi. From the checkout root:
 
 ```bash
-docker compose -f compose.yaml -f compose.pi.yaml build
-docker compose -f compose.yaml -f compose.pi.yaml up -d
-docker compose exec tutorial bash
+bash scripts/setup_pi.sh
+source /opt/ros/humble/setup.bash
+bash scripts/build_workspace.sh
+source ros2_ws/install/setup.bash
 ```
 
-Inside, create/copy the four packages if not already on your learner branch, then build/source them as in lesson 06. The overlay exposes host SocketCAN with NET_RAW; it does not need privileged mode or configure the host adapter.
+The packages are already created. If completing the node blanks on the Pi, edit them directly under `ros2_ws/src`; replace `/work/tutorial` in desktop instructions with your checkout path. The dependency script uses your existing Humble installation, just like Autobot's native workflow.
+
+Bring up CAN using your existing Autobot script:
+
+```bash
+export CAN_BIT_RATE=1000000
+bash ~/EMBR-AutoBot/Tools/start_can_network.sh
+ip -details link show can0
+```
+
+Alternatively, from this checkout: `bash scripts/setup_can.sh can0 1000000`. Run one setup method. Expected: `can0` UP at 1000000 bit/s. Stop Autobot's motor-control nodes before running tutorial comms.
+
+Open native Pi terminals (or SSH sessions). In each, run:
+
+```bash
+cd ~/Tutorial-CANopen
+source /opt/ros/humble/setup.bash
+source ros2_ws/install/setup.bash
+```
+
+Terminal A: `ros2 run maxon_controller node` (zero inputs by default).
+
+Terminal B: `ros2 run helper node`.
+
+Terminal C: run comms using the hardware command below. The flow is `maxon_controller -> /drive/raw -> helper -> /drive/normalized -> comms -> can0 -> ESCON2`. All three nodes can run on the Pi, matching Autobot's native workflow.
 
 ## Start one motor only
 
@@ -68,10 +81,11 @@ Use local Docker for simulation. To run physical commands, open SSH sessions to 
 ```text
 ssh YOUR-USER@YOUR-PI
 cd Tutorial-CANopen
-docker compose exec tutorial bash
+source /opt/ros/humble/setup.bash
+source ros2_ws/install/setup.bash
 ```
 
-All ROS command publishers remain on the Pi; DDS is localhost-only. No direct Windows/macOS USB-CAN passthrough is supplied.
+Run the ROS nodes in those native SSH shells. Desktop Docker is only for development/simulation. Keeping all three nodes on the Pi avoids additional cross-machine DDS networking setup.
 
 Completion: record Pi/OS/adapter/driver, motor/load/gearbox, firmware/Motion Studio version, exported settings, IDs/bitrate, chosen limits, and supervised results for normal stop, publisher loss, CAN loss, and Pi power loss. Hardware validation is separate from simulation success.
 

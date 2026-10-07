@@ -1,7 +1,7 @@
 """Lesson 05: normalized commands -> rpm -> ESCON2 CANopen SDOs.
 
 Supplied code handles startup checks, explicit arming, watchdog, and stop.
-Fill C06/C07 to connect the ROS callback to that policy.
+Provided runtime; learner hooks live in comms/node.py.
 """
 import json
 import rclpy
@@ -9,14 +9,12 @@ from rclpy.node import Node
 from interfaces.msg import DriveCommand
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
-from .blanks import TODO
-from .mixing import mix
-from .can_sender import TutorialDrive
-from .support.controller import Controller, positive
-from .support.drive import SimulatedDrive
+from ..can_sender import TutorialDrive
+from .controller import Controller, positive
+from .drive import SimulatedDrive
 
 
-class Comms(Node):
+class CommsRuntime(Node):
     def __init__(self):
         super().__init__('comms')
         defaults = dict(simulate=True, hardware_ready=False, channel='can0',
@@ -59,8 +57,8 @@ class Comms(Node):
             self.ids = [ids[slot] for slot in self.slots]
             self.speed = speed
             self.status = self.create_publisher(String, '/drive/status', 1)
-            # C06: DriveCommand subscription on /drive/normalized, self.on_command, depth 1.
-            self.subscription = TODO('C06')
+            # Delegate the student-facing connection to comms/node.py.
+            self.subscription = self.connect_input()
             self.create_service(Trigger, '/drive/arm', self.arm)
             self.create_service(Trigger, '/drive/stop', self.stop)
             self.timer = self.create_timer(0.05, self.poll)
@@ -80,11 +78,11 @@ class Comms(Node):
         if self.fault or not all(c.armed for c in self.controls):
             return
         try:
-            levels = mix(msg.forward, msg.turn)
+            levels = self.mix_inputs(msg.forward, msg.turn)
             for control, slot in zip(self.controls, self.slots):
-                # C07: level at slot * configured rpm limit * mounting direction.
-                rpm = TODO('C07')
-                if not control.command(rpm):
+                # Student hook converts a normalized level to rpm.
+                rpm = self.target_rpm(levels[slot], self.directions[slot])
+                if not self.send_target(control, rpm):
                     raise RuntimeError(control.fault or 'Drive rejected command')
         except Exception as exc:
             self.fail(exc)
@@ -136,17 +134,3 @@ class Comms(Node):
         self.cleanup()
         return super().destroy_node()
 
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = None
-    try:
-        node = Comms()
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        if node is not None:
-            node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()

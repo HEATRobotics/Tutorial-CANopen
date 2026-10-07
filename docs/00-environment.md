@@ -1,13 +1,13 @@
 # Environment: Windows, macOS, Linux, Raspberry Pi
 
-The shared [Dockerfile](../docker/Dockerfile) provides Ubuntu 22.04, ROS 2 Humble, colcon, custom-interface generators, pytest, canopen-python, and CAN tools. Compose starts a development shell environment; it does not build unfinished learner code or automatically start motors.
+The shared [Dockerfile](../docker/Dockerfile) provides Ubuntu 22.04, ROS 2 Humble, colcon, custom-interface generators, pytest, canopen-python, and CAN tools. Compose starts a development shell environment; it builds and installs the ready-made packages but does not automatically start unfinished nodes or motors.
 
 | Host | Local exercises | Physical motors |
 | --- | --- | --- |
 | Windows + Docker Desktop, WSL 2 Linux containers | All simulation/development lessons | SSH to Pi |
 | macOS + Docker Desktop | All simulation/development lessons | SSH to Pi |
 | 64-bit Linux + Docker Engine | All simulation/development lessons | Local SocketCAN or SSH to Pi |
-| 64-bit Raspberry Pi + Docker Engine | All lessons | Host SocketCAN adapter required |
+| Your Ubuntu 22.04 Raspberry Pi + native ROS 2 Humble | All lessons natively | Existing MCP2515 / can0 at 1 Mbit/s |
 
 ## Windows
 
@@ -29,7 +29,18 @@ The OS type should be `linux`. All subsequent lesson commands are **inside that 
 
 Install [Docker Desktop on macOS](https://docs.docker.com/desktop/setup/install/mac-install/) or [Docker Engine](https://docs.docker.com/engine/install/). Use the same `docker compose build`, `up -d`, and `exec tutorial bash` commands. The ROS image supports amd64 and arm64; the Compose file does not force emulation. No GUI/XQuartz is needed.
 
-The Pi host should use a 64-bit OS supported by its board and CAN adapter; Humble's Jammy environment lives inside Docker. This tutorial does not specify a Pi HAT driver without knowing its model.
+## Raspberry Pi: native ROS 2, like Autobot
+
+Your Pi already runs Ubuntu 22.04.5 with an MCP2515 adapter exposed as `can0`; Autobot uses `CAN_BIT_RATE=1000000`. Keep the existing boot overlay and host driver. No Docker is needed on the Pi.
+
+From your checkout on the Pi:
+
+```bash
+bash scripts/setup_pi.sh
+source /opt/ros/humble/setup.bash
+```
+
+For lessons 01–06, use a native Pi terminal in place of a container bash shell. Replace `/work/tutorial` with your checkout path (for example `~/Tutorial-CANopen`). After completing the node blanks, build with `bash scripts/build_workspace.sh` and source `ros2_ws/install/setup.bash`. See [the native hardware workflow](07-hardware.md).
 
 ## Workspace and shells
 
@@ -39,4 +50,4 @@ Interactive shells source ROS and the installed workspace if present. After each
 
 If Docker is unavailable, start Desktop/the daemon and check `docker info`. If scripts show `bash\r` errors, restore LF line endings. If bind mounts fail, check Docker Desktop's file access settings or use a WSL Linux checkout. Stop the environment from the host with `docker compose down`.
 
-[Next: create packages](01-create-packages.md).
+[Next: inspect the packages](01-package-map.md).
